@@ -28,5 +28,5 @@ if __name__ == '__main__':
 
     list_of_text_lyrics, list_of_lrc_lyrics = file_ending_parser(list_of_files)
 
-    print('Number of lyric files to parse through:', len(list_of_files))
+    print('Number of .txt lyric files to parse through:', len(list_of_text_lyrics))
     print(list_of_text_lyrics)
