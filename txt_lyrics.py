@@ -34,8 +34,8 @@ def fix_header():
         new_header = [
             [lyric_obj.head[0][:title_position]],  # e.g. 'Artist : Black Sabbath'
             ['Title : ' + song_title],  # e.g. 'Title : Iron Man'
+            [],  # empty line between header and lyrics
             [lyric_obj.head[0].split(song_title)[1]],  # e.g. 'Has he lost his Mind?'
-            []  # empty line between header and lyrics
         ]
         return new_header
     else:  # create titles for lyrics if none are already in the txt file
@@ -72,8 +72,8 @@ def fix_tail():
                 new_tail.append(line)
 
 
-file_name = 'Black Sabbath - Spiral Architect.txt'
-
+if __name__ == '__main__':  # test functionality with 1 file
+    file_name = 'Black Sabbath - Spiral Architect.txt'
 
 song_title = file_name.split(' - ')[1].split('.txt')[0]
 artist = file_name.split(' - ')[0]
@@ -93,4 +93,3 @@ with open(file_name, 'r') as original_file, open(cleaned_file_str, 'w', newline=
 
     for row in replacement_lyrics:
         lyric_writer.writerow(row)
-
