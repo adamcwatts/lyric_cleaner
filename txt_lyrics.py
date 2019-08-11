@@ -76,7 +76,7 @@ def main(file_to_work_on):
 
     cleaned_file_str = artist + ' - ' + song_title + ' - cleaned.txt'
 
-    with open(file_to_work_on, 'r') as original_file, open(cleaned_file_str, 'w', newline='') as new_file:
+    with open(file_to_work_on, 'r', newline='') as original_file:
         lyric_list = list(csv.reader(original_file))
         lyric_obj = LyricsFromText(lyric_list)
 
@@ -84,6 +84,8 @@ def main(file_to_work_on):
         replacement_tail = fix_tail()
 
         replacement_lyrics = replacement_headers + lyric_obj.middle + replacement_tail
+
+    with open(file_to_work_on, 'w', newline='') as new_file:
 
         lyric_writer = csv.writer(new_file)
 
