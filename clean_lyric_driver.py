@@ -22,11 +22,16 @@ def file_ending_parser(file_list):
     return text_lyrics, lrc_lyrics
 
 
+def lyric_driver():
+    print('\nNumber of .txt lyric files to parse through:', len(list_of_text_lyrics))
+    print("************* EXECUTING LYRIC PARSER ON TEXT FILES *************")
+    for text_file in list_of_text_lyrics:
+        txt_lyrics.main(text_file)
+
+
 if __name__ == '__main__':
     os.chdir(r'C:\Users\adamc\foobar_lyrics')
     list_of_files = os.listdir()
 
     list_of_text_lyrics, list_of_lrc_lyrics = file_ending_parser(list_of_files)
-
-    print('Number of .txt lyric files to parse through:', len(list_of_text_lyrics))
-    print(list_of_text_lyrics)
+    lyric_driver()
