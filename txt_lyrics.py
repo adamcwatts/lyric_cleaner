@@ -3,15 +3,48 @@ import csv
 
 # TODO make a lyrics checker that checks for files already formatted correctly
 
+def test_files():
+    file_test_cases = ['Black Sabbath - Spiral Architect.txt',
+                       'Anathema - Flying (Remastered) - A Natural Disaster (Remastered).txt',
+                       'Alice in Chains - Dam That River.txt',
+                       'ISIS - Maritime - Oceanic.txt',
+                       "AC - I'm Not That Kind Of Boy.txt", ]
+    return file_test_cases
+
 
 def main(file_to_work_on):
+    # CLASSES AND FUNCTIONS FOR MAIN
+
     class LyricsFromText:
 
         def __init__(self, lyric):
-            length_of_lyrics = len(lyric)
-            key_words = ['artist', 'title']
+            # FUNCTIONS FOR CLASS
+            def already_cleaned():
+                bool_list = []
+                if length_of_lyrics >= 4:
+                    try:
+                        if isinstance(lyric[0][0], str):
+                            if f'Artist : {artist}' in lyric[0][0]:
+                                bool_list.append(True)
+                            else:
+                                bool_list.append(False)
+                        if isinstance(lyric[1][0], str):
+                            if f'Title : {song_title}' in lyric[1][0]:
+                                bool_list.append(True)
+                            else:
+                                bool_list.append(False)
+                        if len(lyric[2]) == 0:
+                            bool_list.append(True)
+                        else:
+                            bool_list.append(False)
+                    except IndexError:
+                        bool_list.append(False)
 
-            # print(length_of_lyrics)
+                if all(bool_list):
+                    self.clean = True
+                    return self.clean
+                else:
+                    self.clean = False
 
             def tail_finder():
 
@@ -29,14 +62,7 @@ def main(file_to_work_on):
                             flag = True
                             counter -= 1
 
-            if len(lyric[0]) != 0:
-                if key_words[0] and key_words[1] in lyric[0][0].lower():  # Most common lyric file order
-                    self.head = (lyric[0])  # retries header (1st line of lyrics file)
-                    (self.tail,
-                     self.index) = tail_finder()  # retries tail and index (last few lines and the location of end)
-                    self.middle = lyric[1:self.index]  # middle chunk of lyrics
-
-            if length_of_lyrics >= 4:  # difficult case where lyric file may have artist, title, and breaks in any order
+            def difficult_middle_finder():
                 self.head = None
                 (self.tail,
                  self.index) = tail_finder()  # retries tail and index (last few lines and the location of end)
@@ -44,8 +70,8 @@ def main(file_to_work_on):
                 artist_and_title_positions = [[], []]
                 new_line_position = []
 
-            # Tries to find the actual lyrics in the file when the lyric text file is not known a priori
-            def difficult_middle_finder():
+                # Tries to find the actual lyrics in the file when the lyric text file is not known a priori
+
                 for j, word in enumerate(key_words):  # searches through key words
                     for i in range(0, 4):  # searches first 3 lines
                         if len(lyric[i]) != 0:
@@ -71,29 +97,39 @@ def main(file_to_work_on):
                 if flag_index:
                     max_index[0] = -1  # no header using the search criteria above was found
 
-                # # no artist found but title is found, use index from title
-                # if len(artist_and_title_positions[0]) == 0 and len(artist_and_title_positions[1]) != 0:
-                #     middle_index = artist_and_title_positions[1][-1]
-                #
-                # #  no title but artist found, use index from artist
-                # elif len(artist_and_title_positions[1]) == 0 and len(artist_and_title_positions[0]) != 0:
-                #     middle_index = artist_and_title_positions[0][-1]
-                #
-                # elif len(artist_and_title_positions[1]) == 0 and len(artist_and_title_positions[0]) != 0 and  len(new_line_position) != 0:
-                #
-                # # no artist nor title in header but new line is found before lyrics
-                # elif len(new_line_position) != 0:
-                #
-                #     middle_index = new_line_position[-1]
-                # else:  # there is no header. Lyrics start at first line
-                #     middle_index = -1  # negates the +1 and returns 0 from line below
-
                 self.middle = lyric[max_index[0] + 1: self.index]  # middle chunk of lyrics
                 return self.middle
 
-            difficult_middle_finder()
+            # START OF CLASS
+            length_of_lyrics = len(lyric)
+            key_words = ['artist', 'title']
 
-            # print(self.tailing)
+            already_cleaned()
+
+            if self.clean:  # if lyric is already cleaned, do nothing and return class
+                return
+
+            if length_of_lyrics >= 4:  # difficult case where lyric file may have artist, title, and breaks in any order
+                for i in range(0, 4):
+                    if len(lyric[i]) != 0:
+                        if 'instrumental' in lyric[i][0].lower():
+                            self.head = None
+                            self.middle = [['Instrumental']]
+                            self.tail = None
+                            return
+
+            if len(lyric[0]) != 0:  # if there is a header, assume standard format
+                if key_words[0] and key_words[1] in lyric[0][0].lower():  # Most common lyric file order
+                    self.head = (lyric[0])  # retries header (1st line of lyrics file)
+                    (self.tail,
+                     self.index) = tail_finder()  # retries tail and index (last few lines and the location of end)
+                    self.middle = lyric[1:self.index]  # middle chunk of lyrics
+                    return
+                else:
+                    difficult_middle_finder()
+
+            else:  # not instrumental or common format
+                difficult_middle_finder()
 
     def fix_header():
 
@@ -114,38 +150,47 @@ def main(file_to_work_on):
             return new_header
 
     def fix_tail():
-        texts_to_remove = [
-            'Credits',  # remove string
-            'Lyrics licensed by',  # Remove all lines below this
-            'External links',  # sometimes line above is not included, thus remove all below this
-            'Nominate as Song of the Day',  # also should be removed
-            'iTunes: ',  # also should be removed
-        ]
-        new_tail = []
-        flag = False
+        if lyric_obj.tail is not None:
 
-        for line in lyric_obj.tail:  # iterate over all the nested list
-            for text in texts_to_remove:  # iterate over list
-                if len(line) != 0:  # line cannot be empty
-                    if text in line[0]:
-                        if text == texts_to_remove[0] or text == texts_to_remove[2]:  # 'Credits' or 'External..' found
-                            new_string = line[0].split(text)[0]  # remove the 'Credits' from lyrics
-                            new_tail.append([new_string])
-                            new_tail.append([])  # space between official end of lyrics
-                            break  # return to outer loop
+            texts_to_remove = [
+                'Credits',  # remove string
+                'Lyrics licensed by',  # Remove all lines below this
+                'External links',  # sometimes line above is not included, thus remove all below this
+                'Nominate as Song of the Day',  # also should be removed
+                'iTunes: ',  # also should be removed
+            ]
+            new_tail = []
+            flag = False
 
-                        else:  # found bad text
-                            return new_tail  # failed condition and rest of
+            for line in lyric_obj.tail:  # iterate over all the nested list
+                for text in texts_to_remove:  # iterate over list
+                    if len(line) != 0:  # line cannot be empty
+                        if text in line[0]:
+                            if text == texts_to_remove[0] or \
+                                    text == texts_to_remove[2]:  # 'Credits' or 'External..' found
+                                new_string = line[0].split(text)[0]  # remove the 'Credits' from lyrics
+                                new_tail.append([new_string])
+                                new_tail.append([])  # space between official end of lyrics
+                                break  # return to outer loop
 
-                    elif text == texts_to_remove[-1]:  # faster to check condition or use enumerate and check number?
+                            else:  # found bad text
+                                return new_tail  # failed condition and rest of
 
-                        # lyrics are legit, only append after iterating over entire list
-                        new_tail.append(line)
+                        elif text == texts_to_remove[
+                            -1]:  # faster to check condition or use enumerate and check number?
 
-                else:  # append empty line
-                    new_tail.append([])
-                    break
+                            # lyrics are legit, only append after iterating over entire list
+                            new_tail.append(line)
+
+                    else:  # append empty line
+                        new_tail.append([])
+                        break
+        else:
+            new_tail = None
+
         return new_tail
+
+    # START OF CODE FOR MAIN
 
     song_title = file_to_work_on.split(' - ')[1].split('.txt')[0]
     artist = file_to_work_on.split(' - ')[0]
@@ -156,38 +201,46 @@ def main(file_to_work_on):
         lyric_list = list(csv.reader(original_file, delimiter='\n'))
         lyric_obj = LyricsFromText(lyric_list)
 
-        replacement_headers = fix_header()
-        replacement_tail = fix_tail()
+        if not lyric_obj.clean:  # if not clean modify text file
+            replacement_headers = fix_header()
+            replacement_tail = fix_tail()
 
-        try:
-            replacement_lyrics = replacement_headers + lyric_obj.middle + replacement_tail
-        except TypeError:  # when certain methods return None
-            # print('CAUTION ON: ', file_to_work_on)
-            possible_none_types = [replacement_headers, lyric_obj.middle, replacement_tail]
-            replacement_lyrics = []
+            try:
+                replacement_lyrics = replacement_headers + lyric_obj.middle + replacement_tail
+            except TypeError:  # when certain methods return None
+                # print('CAUTION ON: ', file_to_work_on)
+                possible_none_types = [replacement_headers, lyric_obj.middle, replacement_tail]
+                replacement_lyrics = []
 
-            for var_type in possible_none_types:
-                if var_type is not None:
-                    replacement_lyrics += var_type
-            #
-            # print('ERROR ON: ', file_to_work_on)
-            # print(type(replacement_headers), type(lyric_obj.middle), type(replacement_tail))
-            # print(replacement_headers, lyric_obj.middle, replacement_tail)
-            # exit()
+                for var_type in possible_none_types:
+                    if var_type is not None:
+                        replacement_lyrics += var_type
+                #
+                # print('ERROR ON: ', file_to_work_on)
+                # print(type(replacement_headers), type(lyric_obj.middle), type(replacement_tail))
+                # print(replacement_headers, lyric_obj.middle, replacement_tail)
+                # exit()
 
-    with open(file_to_work_on, 'w', newline='',  encoding='utf-8') as new_file:
+            with open(file_to_work_on, 'w', newline='', encoding='utf-8') as new_file:
 
-        lyric_writer = csv.writer(new_file, delimiter='\n')
+                lyric_writer = csv.writer(new_file, delimiter='\n')
 
-        for row in replacement_lyrics:
-            lyric_writer.writerow(row)
+                for row in replacement_lyrics:
+                    lyric_writer.writerow(row)
+
+        else:  # FILE IS ALREADY CLEAN
+            pass
 
 
 if __name__ == '__main__':  # test functionality with 1 file
 
-    file_test_cases = ['Black Sabbath - Spiral Architect.txt',
-                       'Anathema - Flying (Remastered) - A Natural Disaster (Remastered).txt',
-                       'Alice in Chains - Dam That River.txt']
-    file_name = file_test_cases[1]
+    # file_test_cases = ['Black Sabbath - Spiral Architect.txt',
+    #                    'Anathema - Flying (Remastered) - A Natural Disaster (Remastered).txt',
+    #                    'Alice in Chains - Dam That River.txt',
+    #                    'ISIS - Maritime - Oceanic.txt']
+    file_list = test_files()
+    #
+    for file in file_list:
+        main(file)
 
-    main(file_name)
+    # main(file_list[2])
