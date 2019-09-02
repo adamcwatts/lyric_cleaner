@@ -286,6 +286,7 @@ if __name__ == '__main__':  # test functionality with 1 file
 
     file_list, _ = test_files()
 
+    # Loops through all lyric case files
     for file in file_list:
         main(file)
 
