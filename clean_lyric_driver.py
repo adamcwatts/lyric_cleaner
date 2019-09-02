@@ -22,13 +22,10 @@ def file_ending_parser(file_list):
     return text_lyrics, lrc_lyrics
 
 
-def lyric_driver(the_file, file_list):
-    print('\nNumber of .txt lyric files to parse through:', len(file_list))
-    print("************* EXECUTING LYRIC PARSER ON TEXT FILES *************")
-    txt_lyrics.main(the_file)
-
-
 def log_writer():
+    print('\nNumber of .txt lyric files to parse through:', len(list_of_text_lyrics))
+    print("************* EXECUTING LYRIC PARSER ON TEXT FILES *************")
+
     path = r'C:\Users\adamc\PycharmProjects\lyric_cleaner'
     log_name = os.path.join(path, 'log.txt')
 
@@ -36,7 +33,7 @@ def log_writer():
         for text_file in list_of_text_lyrics:
             opened_file.write(text_file + '\n')
 
-            lyric_driver(text_file, list_of_text_lyrics)
+            txt_lyrics.main(text_file)
 
 
 if __name__ == '__main__':

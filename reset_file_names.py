@@ -5,13 +5,10 @@ this little script was written to quickly restore the lyric text back to its ori
 """
 
 from shutil import copyfile
-from glob import glob
 import os
 from txt_lyrics import test_files
 
-# Retrieve Original Files
-original_files = glob('*(ORIGINAL).txt')
-files_to_clean = test_files()
+files_to_clean, original_files = test_files()
 
 files_to_clean.sort()
 
