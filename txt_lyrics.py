@@ -1,15 +1,25 @@
 import csv
+import os
 
-
-# TODO make a lyrics checker that checks for files already formatted correctly
 
 def test_files():
-    file_test_cases = ['Black Sabbath - Spiral Architect.txt',
-                       'Anathema - Flying (Remastered) - A Natural Disaster (Remastered).txt',
-                       'Alice in Chains - Dam That River.txt',
-                       'ISIS - Maritime - Oceanic.txt',
-                       "AC - I'm Not That Kind Of Boy.txt", ]
-    return file_test_cases
+    current_dir = os.getcwd()
+    lyric_dir = 'lyrics'
+    new_work_dir = os.path.join(current_dir, lyric_dir)
+    os.chdir(new_work_dir)
+
+    all_txt_files = os.listdir()
+
+    parsing_test_list = []
+    original_files = []
+
+    for lyric_file in all_txt_files:
+        if '(ORIGINAL)' not in lyric_file:
+            parsing_test_list.append(lyric_file)
+        else:
+            original_files.append(lyric_file)
+
+    return parsing_test_list, original_files
 
 
 def main(file_to_work_on):
@@ -135,12 +145,26 @@ def main(file_to_work_on):
 
         if lyric_obj.head is not None:
             title_position = lyric_obj.head[0].find('Title : ')
+
+            try:
+                correct_song_title = lyric_obj.head[0].split(song_title)[1]
+                hanging_lyric = lyric_obj.head[0].split(song_title)[1]
+
+            except IndexError:  # song title scrapped from file name isn't same as one scrapped from lyric file
+                # occurs when punctuation such as ? is in lyric title but cannot be used in a file name
+
+                song_title_length = len(song_title)
+                stripped_song_title = lyric_obj.head[0].split('Title : ')[1]
+                correct_song_title = stripped_song_title[:song_title_length]
+                hanging_lyric = lyric_obj.head[0].split(correct_song_title)[1]
+
             # if title_position != -1:
             new_header = [
                 [lyric_obj.head[0][:title_position]],  # e.g. 'Artist : Black Sabbath'
-                ['Title : ' + song_title],  # e.g. 'Title : Iron Man'
+                ['Title : ' + correct_song_title],  # e.g. 'Title : Iron Man'
                 [],  # empty line between header and lyrics
-                [lyric_obj.head[0].split(song_title)[1]],  # e.g. 'Has he lost his Mind?'
+                [hanging_lyric],  # e.g. 'Has he lost his Mind?'
+                # cant split song title from lyrics if song title parsed from text file had special symbols in it
             ]
             return new_header
         else:  # create titles for lyrics if none are already in the txt file
@@ -234,13 +258,9 @@ def main(file_to_work_on):
 
 if __name__ == '__main__':  # test functionality with 1 file
 
-    # file_test_cases = ['Black Sabbath - Spiral Architect.txt',
-    #                    'Anathema - Flying (Remastered) - A Natural Disaster (Remastered).txt',
-    #                    'Alice in Chains - Dam That River.txt',
-    #                    'ISIS - Maritime - Oceanic.txt']
-    file_list = test_files()
+    file_list, _ = test_files()
     #
-    for file in file_list:
-        main(file)
+    # for file in file_list:
+    #     main(file)
 
-    # main(file_list[2])
+    main(file_list[2])
