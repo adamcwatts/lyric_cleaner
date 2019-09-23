@@ -1,4 +1,4 @@
-# TODO: 1. access file directory besides mine (works for other users) 2.  open each file and parse for bad lyrics. 4. overwrite file
+# TODO: add .lyrc parser, as .txt parser is finished
 
 import os
 import csv
@@ -34,6 +34,7 @@ def log_writer():
             opened_file.write(text_file + '\n')
 
             txt_lyrics.main(text_file)
+    print("\n################ COMPLETE ################")
 
 
 if __name__ == '__main__':
